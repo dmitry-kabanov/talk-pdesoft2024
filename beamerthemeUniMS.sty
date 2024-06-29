@@ -1,0 +1,1072 @@
+% Copyright 2024 by Eva Pöll, Universität Münster
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/licenses/LICENSE for more details.
+% ###################################################
+
+%Preset Designs according to university design:
+% Option name			-> Corporate Design Description
+% cyan (default)	-> "Design C.1 // Flächen // Titel"
+% blue				-> "Design B // Linie + Fläche // Titel"
+% grey				-> "Design D.2 // Fläche + Schloss im Sommer // Titel"
+% blue-schloss		-> "Design F.2 // Fläche + Hintergrundbild Schloss im Sommer // Titel"
+% grey-cyan			-> "Design G.1 // Linien + Farbhintergrund // Titel"
+% green 			-> "Design G.2 // Linien + Farbhintergrund // Titel"
+% custom			-> set up own specific colours and styles
+
+%Language Options:
+% de - deutsch -> wissen.leben, quotes with ,,x'' (default)
+% en - English -> living.knowledge, quotes with ``x''
+
+%% Content
+% - Options for style and language
+% - Required Packages
+% - Set Colour- and Font-theme
+% - Margins and Distances
+% - Templates
+% --- Remove Navigation Symbols
+% --- Titlepage
+%	  | the title-page depends on the chosen style and the aspectratio
+%	  | the title-page each is build with textpos textblocks and absolute positioning
+%	  | the positions are preset using \newlength and \setlength based on ratio and style
+%	  | the background is drawn using tiks within textblocks, again using the predefined lengths
+%	  | the colours are set in the beamercolorthemeUniMS.sty
+%	  | the hooks to build a customised titlepage (i.e. choose custom style) are highlighted with "%todo"
+% --- Header
+%     | put uni logo and shorttitle of the presentation in the head of each slide
+% --- Frametitle
+%     | insert frametitle and possibly -subtitle in correct colours
+% --- Footline
+%     | add a diving line at bottom and
+%     | insert author's name and slide number in footline
+% --- Blocks
+%     | had to be redefined to align block frame with text
+% --- Seperator pages
+%     | allow coloured frames for \sectionpage, \subsectionpage
+% --- Column Layouts
+%     | \defbeamertemplate{column layout}{iconright} -> column layout with text on the left and an icon on the right
+%     | \defbeamertemplate{column layout}{two}		 -> two equal columns
+% - Commands and Shortcuts
+% 	| \hrefstyled{URL}{text}	-> gives an underlines url
+%	| \email{text}				-> gives a nicely styled emaillink
+%	| \doi{number}				-> gives a nicely styled link to doi.org
+% 	| \frametitles{}			-> inserts section and subsection as frametitle and subtitle
+%	| \layoutTextIconRight{text}{icon}	-> shortcut for special column template, which puts text on the left and an image on the right
+%	| \layoutTwoColumn{column left}{column right}	-> shortcut for special column template, with two equallly sized columns
+%	| \source{referencetext}	-> puts References/Source in grey at bottom of the slide
+%   | \makepartpage{}			-> inserts a coloured separator page with the part title
+%   | \makesectionpage{}		-> inserts a coloured separator page with the section title
+%   | \makessubectionpage{}		-> inserts a differently coloured separator page with the subsection title
+%	| \makecontactpage{}				-> inserts a slide with contact information (given before begin of document)
+%	| \makeclosingpage[bgcol]{text}		-> inserts a slide with the given text (eg Thank you for your attention!)
+
+% ###################################################
+
+\mode<presentation>
+
+%------------------------------
+
+%%Beamer Options
+%-----------------
+	% Style
+	\DeclareOptionBeamer{style}{\def\beamer@UniMS@style{#1}}
+	% Language
+	\DeclareOptionBeamer{language}{\def\beamer@UniMS@lang{#1}}
+
+	%Defaults
+	\ExecuteOptionsBeamer{style=cyan, language=de}
+	\ProcessOptionsBeamer
+	
+% Possible Design-Options
+	\def\beamer@UniMS@stylecyan{cyan}%
+	\def\beamer@UniMS@styleblue{blue}%
+	\def\beamer@UniMS@stylegrey{grey}%
+	\def\beamer@UniMS@styleblueschloss{blue-schloss}%
+	\def\beamer@UniMS@stylegreen{green}%
+	\def\beamer@UniMS@stylegreycyan{grey-cyan}%
+	\def\beamer@UniMS@stylecustom{custom}%
+	
+% Possible Language-Options
+	\def\beamer@UniMS@langde{de}
+	\def\beamer@UniMS@langen{en}
+	
+%---------------
+	
+%Condition if university logo is white or graphite
+	\newif\ifbeamer@logogrey
+	\beamer@logogreytrue %default is graphite
+
+%Check Aspectratio (until \insertaspectratio tag is common, v3.7)
+	\newif\ifbeamer@aspectft % 4:3  f-our t-hree
+	\newif\ifbeamer@aspectst %16:10 s-ixteen t-en
+	\newif\ifbeamer@aspectsn %16:9  s-ixteen n-ine
+	
+	%check paperwidth (set in beamer.cls)
+	\ifdimcomp{\beamer@paperwidth}{=}{12.80cm}{\beamer@aspectfttrue}{
+	\ifdimcomp{\beamer@paperwidth}{=}{16.00cm}{
+		\ifdimcomp{\beamer@paperheight}{=}{10.00cm}{\beamer@aspectsttrue}{}
+		\ifdimcomp{\beamer@paperheight}{=}{9.00cm}{\beamer@aspectsntrue}{}
+	}{
+		%warn to combine arbitrary aspectratios with custom theme
+		\message{LaTeX Warning: Use style=custom with arbitrary aspectratios.
+		If a ratio other than 43, 169, or 1610 is wished a custom theme should be build. Use style=custom when calling usetheme. The style can be inserted in beamerthemeUniMS.sty (search for "stylecustom").}
+	}	
+	}
+
+% ###################################################
+
+%% Requirements
+%---------------
+	%Font setup
+	\usepackage[sfdefault,lf]{carlito} % Carlito is part of the texlive-fonts-extra package
+	\usepackage[T1]{fontenc}
+	\renewcommand*\oldstylenums[1]{\carlitoOsF #1}
+	%Styling
+	\RequirePackage{tikz}
+	\RequirePackage{xcolor}
+	\RequirePackage{graphicx}
+	\RequirePackage[absolute]{textpos} %for titlepage layout %todo: use 'showboxes'-option for easier styling of a custom design
+	%Language
+	\RequirePackage[english, ngerman]{babel}
+	\ifx\beamer@UniMS@lang\beamer@UniMS@langen
+		\usepackage[babel=true, autostyle=false, style=english]{csquotes}
+	\else
+		\usepackage[babel=true, autostyle=false, german=quotes, style=german]{csquotes}
+	\fi
+	\MakeOuterQuote{"} %Auto-Replace outer quotes with correct version, depending on language: "hello" -> ``hello''
+
+% ###################################################
+
+%% Theme Settings
+%-----------------
+
+	\usecolortheme{UniMS}
+	\usefonttheme{UniMS}
+
+% ###################################################
+
+%% Margins and distances
+%------------------------
+
+	%paperwidth and height: \beamer@paperwidth, \beamer@paperheight
+	%4:3   -> 12.80cm :  9.60cm
+	%16:9  -> 16.00cm :  9.00cm
+	%16:10 -> 16.00cm : 10.00cm
+	\newlength{\slidew}			\setlength{\slidew}{\beamer@paperwidth} %shorthand
+	\newlength{\slideh}			\setlength{\slideh}{\beamer@paperheight} %shorthand
+	\newlength{\slidewmargin}	%\beamer@paperwidth - 0.45cm margin on the left, defined below, according to aspectratio
+	\newlength{\margins} 		\setlength{\margins}{0.3cm}
+	\newlength{\margin}			\setlength{\margin}{0.45cm}
+	
+	%Set margins on left and right
+	\setbeamersize{
+		sidebar width left=\margin,
+		text margin left=0cm,
+		text margin right=\margin
+	}
+
+% ###################################################
+
+%% Templates
+%------------
+% -> actual styling
+
+%------------------------------
+
+% Small Adjustments
+	%Remove Navigation Symbols
+	\setbeamertemplate{navigation symbols}{}
+	%Setup standard formation
+	\setbeamertemplate{items}[triangle]			 %bullets with little triangles instead of circles
+	\setbeamertemplate{enumerate items}[default] %enumeration with 1., 2., ...
+	\setbeamertemplate{sections/subsections in toc}[default] %table of contents
+	\hypersetup{								 %Href
+		colorlinks=true,
+		linkcolor=.,
+		urlcolor=.,
+	}
+
+%------------------------------
+
+%% Titlepages
+% based on chosen design
+
+% preset lengths according to chosen theme and aspectratio to position textblocks (textpos package)
+
+%Necessary lengths to style the title page (and further slides)
+	\newlength{\logowidth}
+	\newlength{\logoheight}
+	\newlength{\logoposy}
+	\newlength{\titlewidth}
+	\newlength{\titleposy}
+	\newlength{\claimwidth}
+	\newlength{\claimheight}
+	\newlength{\claimposy}
+	\newlength{\footerwidth}
+	\newlength{\footerposx}
+	\newlength{\footerposy}
+	\newlength{\bottomcornery}
+	\newlength{\topcornerx}
+	\newlength{\topcornery}
+	\newlength{\graphicwidth}
+
+%Set lengths for different styles:
+	%Lengths for custom setup
+	\ifx\beamer@UniMS@style\beamer@UniMS@stylecustom
+	%todo if needed: change lengths here for customised theme
+		%...
+	\fi%
+
+	%Lengths that are the same
+	\setlength{\logowidth}{8cm}
+	\setlength{\logoheight}{1cm}
+	\setlength{\logoposy}{0.4cm}
+	\setlength{\titlewidth}{8.5cm}
+	\setlength{\claimwidth}{3.3cm} %german claim has 40% of \logowidth (English: 50%, admittedly surpasses defined box)
+	\setlength{\claimheight}{0.24cm}
+	\setlength{\footerwidth}{6.7cm}
+	
+	%Adjust Lengths to Aspectratio of slides
+	%16:9  -> 16.00cm :  9.00cm
+	\ifbeamer@aspectsn
+		\setlength{\claimposy}{8.4cm}
+		\setlength{\slidewmargin}{15.55cm} %16-\margin
+		
+		%Adjust according to theme
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+		%blue
+			\setlength{\titleposy}{2.7cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{7.6cm}
+			\setlength{\bottomcornery}{6.05cm} %9-2.95
+			\setlength{\topcornerx}{6.79cm} %16-9.21
+			\else% 
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey%
+		%grey	
+			\setlength{\titleposy}{2.7cm}
+			\setlength{\footerposx}{4.24cm}
+			\setlength{\footerposy}{8cm}
+			\setlength{\bottomcornery}{6.7cm} %9-2.3
+			\setlength{\topcornerx}{3.76cm} %16-12.24
+			\setlength{\topcornery}{5.45cm}
+			\setlength{\graphicwidth}{12.24cm}
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+		%blue-schloss	
+			\setlength{\titleposy}{3.1cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{7.6cm}
+			\setlength{\topcornerx}{12.7cm}
+			\setlength{\topcornery}{6.3cm} %9-2.7
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+		%grey-cyan
+			\setlength{\titleposy}{3.1cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{7.6cm}	
+			\setlength{\bottomcornery}{7.25cm} %9 - 1.75
+			\else%	
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+		%green
+			\setlength{\titleposy}{3.1cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{7.6cm}	
+			\setlength{\bottomcornery}{7.25cm} %9 - 1.75
+			\else%	
+		%cyan (default)
+			\setlength{\titleposy}{3.1cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{7.6cm}
+			\setlength{\bottomcornery}{7.25cm} %9 - 1.75
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+	\else
+	%4:3   -> 12.80cm :  9.60cm
+	\ifbeamer@aspectft
+		\setlength{\claimposy}{9cm}
+		\setlength{\slidewmargin}{12.35cm} %12.8-\margin
+		
+		%Adjust according to theme
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+		%blue
+			\setlength{\titleposy}{3.2cm}
+			\setlength{\footerposx}{5.65cm} %12.8cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.2cm}
+			\setlength{\bottomcornery}{6.65cm} %9.6-2.95
+			\setlength{\topcornerx}{3.59cm} %12.8-9.21
+			\else% 
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey%
+		%grey	
+			\setlength{\titleposy}{3.2cm}
+			\setlength{\footerposx}{3.2cm}
+			\setlength{\footerposy}{8.6cm}
+			\setlength{\bottomcornery}{7.3cm} %9.6-2.3
+			\setlength{\topcornerx}{3.8cm} %12.8-9
+			\setlength{\topcornery}{4cm}
+			\setlength{\graphicwidth}{9cm}
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+		%blue-schloss	
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{5.65cm} %12.8cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.2cm}
+			\setlength{\topcornerx}{12.7cm}
+			\setlength{\topcornery}{6.9cm} %9.6-2.7
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+			%grey-cyan
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{5.65cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.2cm}	
+			\setlength{\bottomcornery}{7.85cm} %9 - 1.75
+			\else%	
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+			%green
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{5.65cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.2cm}	
+			\setlength{\bottomcornery}{7.85cm} %9.6 - 1.75
+			\else%	
+		%cyan (default)
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{5.65cm} %12.8cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.2cm}
+			\setlength{\bottomcornery}{7.85cm} %9.6 - 1.75
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+	\else
+	%16:10  -> 16.00cm : 10.00cm     or wild format
+		\setlength{\claimposy}{9.4cm}
+		\setlength{\slidewmargin}{15.55cm} %16-\margin
+	
+		%Adjust according to theme
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+		%blue
+			\setlength{\titleposy}{3.2cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.6cm}
+			\setlength{\bottomcornery}{7.05cm} %10-2.95
+			\setlength{\topcornerx}{6.79cm} %16-9.21
+			\else% 
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey%
+		%grey	
+			\setlength{\titleposy}{3.2cm}
+			\setlength{\footerposx}{4.24cm}
+			\setlength{\footerposy}{9cm}
+			\setlength{\bottomcornery}{7.7cm} %10-2.3
+			\setlength{\topcornerx}{3.76cm} %16-12.24
+			\setlength{\topcornery}{5.45cm}
+			\setlength{\graphicwidth}{12.24cm}
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+		%blue-schloss	
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.6cm}
+			\setlength{\topcornerx}{12.7cm}
+			\setlength{\topcornery}{7.3cm} %10-2.7
+			\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+		%grey-cyan
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.6cm}	
+			\setlength{\bottomcornery}{8.25cm} %10 - 1.75
+			\else%	
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+		%green
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.6cm}	
+			\setlength{\bottomcornery}{8.25cm} %10 - 1.75
+			\else%	
+		%cyan (default)
+			\setlength{\titleposy}{3.6cm}
+			\setlength{\footerposx}{8.85cm} %16cm width - 0.45cm margin - footerwidth
+			\setlength{\footerposy}{8.6cm}
+			\setlength{\bottomcornery}{8.25cm} %10-1.75
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+	\fi
+	\fi
+
+	
+%------------------------------
+
+
+%Actual styling of titlepages
+
+	\setbeamertemplate{title page}
+	{
+		%Depensing on chosen theme
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylecustom%
+		%custom theme
+		%todo put design here
+		%helpful: use textblock*s for absolute positioning and include the "showboxes" option in the \RequirePackage of textpos
+			%###########
+			%###########
+			%###########
+		
+		%------------------------------
+		
+		\else
+			
+		%Background
+			%blue -> "Design B // Linie + Fläche // Titel"		
+			\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+				%blue corner top right
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\hspace*{\topcornerx} %push corner to the right
+					\begin{tikzpicture}
+						\fill[col1](\topcornerx,4.1) -- (\slidew,4.1) -- (\slidew,0); % angle: -24°
+					\end{tikzpicture}
+				\end{textblock*}
+				%blue line bottom left (for dimension of 16:9)
+				\begin{textblock*}{\slidew}(0cm,\bottomcornery)
+					\begin{tikzpicture}
+						\draw[col1, line width=0.08cm] (0,2.95) -- ++ (-6:16.09); % angle: -6°
+						\clip (0,0) rectangle (\slidew,1.75); %reduce to actual slide dimensions
+					\end{tikzpicture}
+				\end{textblock*}
+			\else% 
+			
+			%------------------------------
+	
+			%grey -> "Design D.2 // Fläche + Schloss im Sommer // Titel"
+			\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey%
+				%corner with photo of schloss in top right
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\hspace*{\topcornerx} %push corner to the right
+					\begin{tikzpicture}
+						\clip (\topcornerx,\topcornery) -- (\slidew,\topcornery) -- (\slidew,0) -- cycle; % angle: -24°
+						\node[anchor=north east,inner sep=0pt] at (\slidew, \topcornery) {\includegraphics[width=\graphicwidth]{assets/Schloss_Luftaufn_c_UniMS_JanLehmann.jpg}}; % Photo
+						\node[rotate=90, anchor=south west, color=white!20, inner xsep=2mm, inner ysep=1.5mm, font=\fontsize{4}{8}\selectfont] at (\slidew, 0) {\textcopyright Uni Münster -- Jan Lehmann}; % Copyright
+					\end{tikzpicture}
+				\end{textblock*}
+				%grey corner bottom left (for dimension of 16:9)
+				\begin{textblock*}{\slidew}(0cm,\bottomcornery)
+					\begin{tikzpicture}
+						\fill[col1] (0,2.3) -- (16,0.62) -- (16,0) -- (0,0); % angle: -6°
+						\clip (0,0) rectangle (\slidew,2.3);
+					\end{tikzpicture}
+				\end{textblock*}
+			\else%
+			
+			%------------------------------
+			
+			%blue-schloss -> "Design F.2 // Fläche + Hintergrundbild Schloss im Sommer // Titel"
+			\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+				%area with blueish photo of schloss, white corner at top left
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\begin{tikzpicture}
+						%Photo with clipped edge for logo
+						\clip (0,\topcornery) -- (\topcornerx,\slideh) -- (\slidew, \slideh) -- (\slidew, 0) -- (0,0) -- cycle;
+						\node[anchor=south west,inner sep=0pt] at (0, 0) {\includegraphics[height=\slideh]{assets/Schloss Luftaufn2_c_UniMS_JanLehmann.jpg}}; % Photo
+						\node[rotate=90, anchor=south east, color=white, inner xsep=1.5cm, inner ysep=1.5mm, font=\fontsize{4}{8}\selectfont] at (\slidew, \slideh) {\textcopyright Uni Münster -- Jan Lehmann}; % Copyright
+						%blue overlay
+						\fill[col1, opacity=0.7] (0,0) rectangle (\slidew, \slideh);
+					\end{tikzpicture}
+				\end{textblock*}
+			\else%
+			
+			%------------------------------
+			
+			%grey-cyan -> "Design G.1 // Linien + Farbhintergrund // Titel"		
+			\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+				%grey background
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\color{col1}\vrule width\slidew height\slideh
+				\end{textblock*}
+				%white lines (for dimension of 16:9)
+				%top left
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\begin{tikzpicture}
+						\draw[col2, line width=0.08cm] (0,0) -- ++ (6:16.09); % angle: 6°
+						\clip (0,0) rectangle (\slidew,2.5); %reduce to actual slide dimensions
+					\end{tikzpicture}
+				\end{textblock*}
+				%bottom left
+				\begin{textblock*}{\slidew}(0cm,\bottomcornery)
+					\begin{tikzpicture}
+						\draw[col2, line width=0.08cm] (0,1.75) -- ++ (-12:8.42); % angle: 12°
+						\clip (0,0) rectangle (\slidew,1.75);
+					\end{tikzpicture}
+				\end{textblock*}
+			\else% 
+
+			%------------------------------
+			
+			%green -> "1_Design G.2 // Linien + Farbhintergrund // Titel"		
+			\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+				%green background
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\color{col1}\vrule width\slidew height\slideh
+				\end{textblock*}
+				%white lines (for dimension of 16:9)
+				%top left
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\begin{tikzpicture}
+						\draw[white, line width=0.08cm, opacity=0.25] (0,0) -- ++ (6:16.09); % angle: 6°
+						\clip (0,0) rectangle (\slidew,2.5); %reduce to actual slide dimensions
+					\end{tikzpicture}
+				\end{textblock*}
+				%bottom left
+				\begin{textblock*}{\slidew}(0cm,\bottomcornery)
+					\begin{tikzpicture}
+						\draw[white, line width=0.08cm, opacity=0.25] (0,1.75) -- ++ (-12:8.42); % angle: 12°
+						\clip (0,0) rectangle (\slidew,1.75);
+					\end{tikzpicture}
+				\end{textblock*}
+			\else%
+			
+			%------------------------------
+			
+			%cyan (default)	-> "Design C.1 // Flächen // Titel"
+				%blue corner top left (for dimension of 16:9)
+				\begin{textblock*}{\slidew}(0cm,0cm)
+					\begin{tikzpicture}
+						\fill[col1](0,2.5) -- (16,2.5) -- (16,1.68) -- (0,0); % angle: 6°
+						\clip (0,0) rectangle (\slidew,2.5); %reduce to actual slide dimensions
+					\end{tikzpicture}
+				\end{textblock*}
+				%green corner bottom left (for dimension of 16:9)
+				\begin{textblock*}{\slidew}(0cm,\bottomcornery)
+					\begin{tikzpicture}
+						\fill[col2] (0,0) -- (0,1.75) -- (8.23,0); % angle: 12°
+						\clip (0,0) rectangle (\slidew,1.75);
+					\end{tikzpicture}
+				\end{textblock*}
+			\fi%
+			\fi%
+			\fi%
+			\fi%
+			\fi%
+			\fi%
+			
+		%------------------------------
+		
+		%Logo
+			\begin{textblock*}{\logowidth}(\margin,\logoposy)
+				%white logo for cyan and green and grey-cyan style
+				\ifx\beamer@UniMS@style\beamer@UniMS@stylecyan%
+					\includegraphics[height=\logoheight]{assets/Logo_UniMuenster_2023_RGB_Negativ.pdf}
+				\else
+				\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+					\includegraphics[height=\logoheight]{assets/Logo_UniMuenster_2023_RGB_Negativ.pdf}
+				\else
+				\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+					\includegraphics[height=\logoheight]{assets/Logo_UniMuenster_2023_RGB_Negativ.pdf}
+				\else
+				%grey logo for all others
+					\includegraphics[height=\logoheight]{assets/Logo_UniMuenster_2023_RGB.pdf}
+				\fi
+				\fi
+				\fi
+			\end{textblock*}
+		
+		%Title, Subtitle, Name
+			\begin{textblock*}{\titlewidth}(\margin,\titleposy)
+				{\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}
+				\vspace{12pt}
+				{\usebeamerfont{author}\usebeamercolor[fg]{infos}\insertauthor\par}
+			\end{textblock*}
+		
+		%Claim
+			\begin{textblock*}{\claimwidth}(\margin, \claimposy)
+				%dark claim for blue style
+				\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+					%english
+					\ifx\beamer@UniMS@lang\beamer@UniMS@langen
+						\includegraphics[height=\claimheight]{assets/Claim_UniMuenster_2023_ENG_RGB.pdf}
+					\else
+					%or german
+						\includegraphics[height=\claimheight]{assets/Claim_UniMuenster_2023_GER_RGB.pdf}
+					\fi
+				\else
+				%white claim fo all others
+					%english
+					\ifx\beamer@UniMS@lang\beamer@UniMS@langen
+						\includegraphics[height=\claimheight]{assets/Claim_UniMuenster_2023_ENG_Negativ.pdf}
+					\else
+					%or german
+						\includegraphics[height=\claimheight]{assets/Claim_UniMuenster_2023_GER_Negativ.pdf}
+					\fi
+				\fi
+			\end{textblock*}
+		
+		%Footer
+			\begin{textblock*}{\footerwidth}(\footerposx,\footerposy)
+				%leftaligned for grey style
+				\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey
+					{\usebeamerfont{date}\textcolor{white}{\insertdate}\par}
+					\vspace{-3pt}
+					{\usebeamerfont{institute}\textcolor{white}{\insertinstitute}}
+				\else
+				%rightaligned for all others
+					\begin{flushright}
+						{\usebeamerfont{date}\usebeamercolor[fg]{infos} \insertdate\par}
+						\vspace{-3pt}
+						{\usebeamerfont{institute}\usebeamercolor[fg]{infos} \insertinstitute}
+					\end{flushright}
+				\fi
+			\end{textblock*}
+	}
+
+%------------------------------
+
+% Header with logo and short title
+
+	\setbeamertemplate{headline}{
+		%If first page = title slide: leave empty
+		\ifnum \theframenumber=1
+		%for all other pages
+		\else
+		%see if content should be grey or white (for coloured frames)
+		{
+			%on normal slides grey logo and text
+			\ifbeamer@logogrey
+				\def\col{frame head}
+				\def\imgpath{assets/Logo_UniMuenster_2023_RGB.pdf}
+			\else
+			%on colored slides white
+				\def\col{bright}
+				\def\imgpath{assets/Logo_UniMuenster_2023_RGB_Negativ.pdf}
+			\fi
+			
+			\begin{beamercolorbox}[wd=\slidew, leftskip=\margin, rightskip=\margin, ht=1.3cm]{\col}%
+				%Uni Logo in upper left corner
+				\includegraphics[width=22.5mm,keepaspectratio]{\imgpath}
+				\hfill
+				%shorttitle of presentation in upper right corner
+				\makebox[8cm][r]{\usebeamerfont{frame head} \insertshorttitle}
+				\vskip\margins
+			\end{beamercolorbox}
+
+		}
+		\fi
+	}
+
+%------------------------------
+
+% Titlepositioning on regular slides
+
+	\setbeamertemplate{frametitle}
+	{
+		%Frametitle
+		%check if there is subtitle
+		\ifx\insertframesubtitle\@empty%
+			%if not, put frame title in col1 at top position
+			\begin{beamercolorbox}[wd=\slidewmargin]{frametitle}%
+				\usebeamerfont{frametitle}\insertframetitle
+			\end{beamercolorbox}
+		\else
+			%if there is, put subtitle on top in col2
+			\begin{beamercolorbox}[wd=\slidewmargin]{framesubtitle}%
+				\usebeamerfont{framesubtitle}\insertframesubtitle
+			\end{beamercolorbox}
+			%and title below in col1
+			\begin{beamercolorbox}[wd=\slidewmargin]{frametitle}%
+				\usebeamerfont{frametitle}\insertframetitle
+			\end{beamercolorbox}
+		\fi
+	}
+
+%------------------------------
+
+% Footline on regular slides
+
+	\setbeamertemplate{footline}
+	{
+		%If first page = title slide: leave empty
+		\ifnum \theframenumber=1
+		%for all other pages
+		\else
+			{
+			%on white (normal) slides: coloured line and text
+			\ifbeamer@logogrey
+				\def\col{footline}
+				\def\colline{col1!30}
+			\else
+			%on coloured slides: white
+				\def\col{bright}
+				\def\colline{white!30}
+			\fi
+			
+			\begin{beamercolorbox}[wd=\slidew, leftskip=\margin, rightskip=\margin]{\col}
+				%Line
+				\textcolor{\colline}{\hrule}
+				\vspace{\margins}
+				%Author in the left corner
+				\makebox[8cm][l]{\usebeamerfont{footline} \insertauthor}
+				\hfill
+				%slide number in right corner
+				\makebox[2cm][r]{\usebeamerfont{page number in head/foot} \insertframenumber}%
+				\vspace{\margin}
+			\end{beamercolorbox}
+			}
+		\fi
+	}
+
+%------------------------------
+
+%Blocks
+	% redefine blocks, to align block frame with text
+	% default is to align the text within the block with the rest of the text
+	% if default behaviour is wished, remove all of this and replace with \setbeamertemplate{blocks}[default]
+	
+	%Normal blocks
+	\setbeamertemplate{block begin}{
+		\par\vskip\medskipamount%
+		\hspace*{1.7mm}\begin{minipage}{.98\textwidth}%  this is added
+			\begin{beamercolorbox}[colsep*=.75ex]{block title}
+				\usebeamerfont*{block title}\insertblocktitle%
+			\end{beamercolorbox}%
+			{\parskip0pt\par}%
+			\ifbeamercolorempty[bg]{block title}
+			{}
+			{\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+			\usebeamerfont{block body}%
+			\begin{beamercolorbox}[colsep*=.75ex,vmode]{block body}%
+				\ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+	}
+	\setbeamertemplate{block end}{
+		\end{beamercolorbox}\end{minipage}\vskip\smallskipamount
+	}
+
+	%Alert blocks
+	\setbeamertemplate{block alerted begin}{
+		\par\vskip\medskipamount%
+		\hspace*{1.7mm}\begin{minipage}{.98\textwidth}%  this is added
+		\begin{beamercolorbox}[colsep*=.75ex]{block title alerted}
+			\usebeamerfont*{block title alerted}\insertblocktitle%
+		\end{beamercolorbox}%
+		{\parskip0pt\par}%
+		\ifbeamercolorempty[bg]{block title alerted}
+		{}
+		{\ifbeamercolorempty[bg]{block body alerted}{}{\nointerlineskip\vskip-0.5pt}}%
+		\usebeamerfont{block body alerted}%
+		\begin{beamercolorbox}[colsep*=.75ex,vmode]{block body alerted}%
+			\ifbeamercolorempty[bg]{block body alerted}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+	}
+	\setbeamertemplate{block alerted end}
+		{\end{beamercolorbox}\end{minipage}\vskip\smallskipamount} %and the end of minipage is added
+
+	%Example blocks
+	\setbeamertemplate{block example begin}
+	{
+		\par\vskip\medskipamount%
+		\hspace*{1.7mm}\begin{minipage}{.98\textwidth}%  this is added
+		\begin{beamercolorbox}[colsep*=.75ex]{block title example}
+			\usebeamerfont*{block title example}\insertblocktitle%
+		\end{beamercolorbox}%
+		{\parskip0pt\par}%
+		\ifbeamercolorempty[bg]{block title example}
+		{}
+		{\ifbeamercolorempty[bg]{block body example}{}{\nointerlineskip\vskip-0.5pt}}%
+		\usebeamerfont{block body example}%
+		\begin{beamercolorbox}[colsep*=.75ex,vmode]{block body example}%
+			\ifbeamercolorempty[bg]{block body example}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+	}
+	\setbeamertemplate{block example end}
+		{\end{beamercolorbox}\end{minipage}\vskip\smallskipamount}
+
+%------------------------------
+
+% Separator pages
+	%Part page
+	%hacking to trigger the right footline
+	\def\ps@navigation@partpage{%
+		\beamer@logogreyfalse
+		\@nameuse{ps@navigation}
+	}
+	%Style
+	\setbeamertemplate{part page}{
+		%Hacking
+		\thispagestyle{navigation@partpage}
+		
+		%Bakground
+		\begin{textblock*}{\slidew}(0cm,0cm)
+			\color{col1}\vrule width\slidew height\slideh
+		\end{textblock*}
+		
+		%Section title
+		\begin{beamercolorbox}[wd=\slidewmargin, rightskip=\margin, ht=1.3cm]{bright}%
+			\huge\textbf{\insertpart}\par
+		\end{beamercolorbox}
+		
+	}	
+	
+	%Section page
+	%hacking to trigger the right footline
+	\def\ps@navigation@sectionpage{%
+		\beamer@logogreyfalse
+		\@nameuse{ps@navigation}
+	}
+	%Style
+	\setbeamertemplate{section page}{
+		%Hacking
+		\thispagestyle{navigation@sectionpage}
+		
+		%Bakground
+		\begin{textblock*}{\slidew}(0cm,0cm)
+			\color{col1}\vrule width\slidew height\slideh
+		\end{textblock*}
+		
+		%Section title
+		\begin{beamercolorbox}[wd=\slidewmargin, rightskip=\margin, ht=1.3cm]{bright}%
+			\huge\textbf{\insertsection}\par
+		\end{beamercolorbox}
+
+	}
+
+	%Subsection page
+	%hacking to trigger the right footline
+	\def\ps@navigation@subsectionpage{%
+		\beamer@logogreyfalse
+		\@nameuse{ps@navigation}
+	}
+	%Style
+	\setbeamertemplate{subsection page}{
+		%Hacking
+		\thispagestyle{navigation@subsectionpage}
+
+		%Bakground
+		\begin{textblock*}{\slidew}(0cm,0cm)
+			\color{col2}\vrule width\slidew height\slideh
+		\end{textblock*}
+		
+		%Subsection title
+		\begin{beamercolorbox}[wd=\slidewmargin, rightskip=\margin, ht=1.3cm]{bright}%
+			\Large{\insertsection}\par
+			\smallskip
+			\huge\textbf{\insertsubsection}\par
+		\end{beamercolorbox}
+	}
+
+%------------------------------
+
+%Coloured frames
+	%gives a frame optionkey like [plain]
+
+	%keep colours from leaking by checking for coloured frame and enclose with \begingroup and \endgroup
+	\newif\ifbgframe
+	\bgframefalse
+	
+	%background coloured with col1
+	\define@key{beamerframe}{bgcol1}[true]{%
+		\bgframetrue
+		\begingroup
+			%white headline, footline
+			\beamer@logogreyfalse
+			%background colour
+			\setbeamercolor{background canvas}{bg=col1}
+			%white structure elements
+			\setbeamercolor{normal text}{fg=white}
+			\setbeamercolor{frametitle}{fg=white}
+			\setbeamercolor{framesubtitle}{fg=white!70}
+			\usebeamercolor*{normal text}
+	}
+
+	%background coloured with col2
+	\define@key{beamerframe}{bgcol2}[true]{%
+		\bgframetrue
+		\begingroup
+			%white headline, footline
+			\beamer@logogreyfalse
+			%background colour
+			\setbeamercolor{background canvas}{bg=col2}
+			%white structure elements
+			\setbeamercolor{normal text}{fg=white}
+			\setbeamercolor{frametitle}{fg=white}
+			\setbeamercolor{framesubtitle}{fg=white!70}
+			\usebeamercolor*{normal text}
+	}
+
+	%hack to end the colour change
+	\pretocmd{\beamer@reseteecodes}{%
+		\ifbgframe
+			%enclose coloured environment to stop coours from leeking to next frames
+			\endgroup
+			\bgframefalse
+			\beamer@logogreytrue
+		\fi
+	}{}{}
+%------------------------------
+
+% Column Layouts
+
+	%Content left and an icon/picture on the right
+	\defbeamertemplate{column layout}{iconright}[2]{%
+		\begin{columns}[c]%
+			\begin{column}{.75\textwidth}%
+				#1%
+			\end{column}%
+			\begin{column}{.2\textwidth}%
+				\pause[1]
+				\includegraphics[width=.8\textwidth]{#2} \hfill%
+			\end{column}%
+		\end{columns}%
+	}
+	
+	%2 Columns, half half
+	\defbeamertemplate{column layout}{two}[2]{%
+		\begin{columns}[t, onlytextwidth]
+			\begin{column}{.48\textwidth}%
+				#1
+			\end{column}
+			\begin{column}{.48\textwidth}%
+				#2
+			\end{column}
+		\end{columns}
+	}
+
+% ###################################################
+
+%% Useful Commands / Shortcuts
+
+%Commands
+
+%Links
+	%make links look cool
+	\newcommand{\ulcolor}[2]{\textcolor{#1}{\underline{\textcolor{textcolor}{\smash{#2}}}}}
+	\providecommand{\hrefstyled}[2]{\href{#1}{\usebeamerfont{link}\ulcolor{col2!50}{#2}}}
+	
+	%easy email linking
+	\providecommand{\email}[1]{\hrefstyled{mailto:#1}{#1}}
+	
+	%make it esier to link to dois
+	\providecommand{\doi}[1]{\hrefstyled{https://doi.org/#1}{DOI: #1}}
+	
+%------------------------------
+
+%Shorthands
+
+	%Easy Setup for frametitles, if section (and subsection) is used
+	\newcommand{\frametitles}{
+		%check if there is subsection
+		\ifx\insertsubsection\@empty%
+		\frametitle{\insertsection}
+		\else
+		\frametitle{\insertsubsection}
+		\framesubtitle{\insertsection}
+		\fi
+	}
+
+	%Content left  and an icon/picture on the right
+	\newcommand{\layoutTextIconRight}[2]{
+		\setbeamertemplate{column layout}[iconright]{#1}{#2}%
+		\usebeamertemplate{column layout}%
+	}
+	%2 Columns, half half
+	\newcommand{\layoutTwoColumn}[2]{
+		\setbeamertemplate{column layout}[two]{#1}{#2}%
+		\usebeamertemplate{column layout}%
+	}
+
+	%Part Page
+	\providecommand{\makepartpage}{
+		\begin{frame}
+			\partpage
+		\end{frame}
+	}
+
+	%Section Page
+	\providecommand{\makesectionpage}{
+		\begin{frame}
+			\sectionpage
+		\end{frame}
+	}
+	
+	%Subsection Page
+	\providecommand{\makesubsectionpage}{
+		\begin{frame}
+			\subsectionpage
+		\end{frame}
+	}
+
+%------------------------------
+
+%give References/Source in grey at bottom of page
+	\newcommand{\source}[1]{
+		\vskip0pt plus 1filll	%moves to bottom of the page
+		\begin{beamercolorbox}{source}
+			\usebeamerfont{source} #1
+		\end{beamercolorbox}
+	}
+
+%------------------------------
+
+%Special slides
+
+%Make a Contact page
+	%Field-definitions to collect information for Contact Frame
+	\newcommand*{\authoremail}[1]{\gdef\@authoremail{#1}}
+	\newcommand*{\@authoremail}{}
+	\newcommand*{\authorinfo}[1]{\gdef\@authorinfo{#1}}
+	\newcommand*{\@authorinfo}{}
+	\newcommand*{\authorlink}[1]{\gdef\@authorlink{#1}}
+	\newcommand*{\@authorlink}{}
+	\newcommand*{\authorlinktext}[1]{\gdef\@authorlinktext{#1}}
+	\newcommand*{\@authorlinktext}{}
+	\newcommand*{\authorpic}[1]{\gdef\@authorpic{#1}}
+	\newcommand*{\@authorpic}{figures/qrcode.png}
+	
+	%Make the frame
+	\providecommand{\makecontactpage}[1][\@empty]{
+		{\begin{frame}[#1]
+			\ifx\beamer@UniMS@lang\beamer@UniMS@langen
+			\frametitle{Contact}
+			\else	
+			\frametitle{Kontakt}
+			\fi
+			\begin{columns}[c]%
+				\begin{column}{.6\textwidth}%
+					\ifbeamer@logogrey
+					%on white slides: blue name
+					\textcolor{col1}{\textbf{\large \insertauthor}}\par
+					\else
+					%on coloured slides: white line	
+					{\textbf{\large \insertauthor}}\par
+					\fi
+					\bigskip
+					\@authorinfo\par
+					\bigskip
+					\email{\@authoremail}
+				\end{column}%
+				\begin{column}{.4\textwidth}%
+					\begin{center}
+						\includegraphics[width=.5\textwidth]{\@authorpic}\par
+						\medskip
+						\hrefstyled{\@authorlink}{\@authorlinktext}
+					\end{center}
+				\end{column}%
+			\end{columns}%
+		\end{frame}}
+	}
+
+% Closing slide to thank for attention
+	\providecommand{\makeclosingpage}[2][bgcol1]{
+		{\begin{frame}[#1]
+			\begin{beamercolorbox}{bright}
+				\huge\textbf{#2}
+			\end{beamercolorbox}
+		\end{frame}}
+	}
+
+% ###########################################################
+
+\mode
+<all>

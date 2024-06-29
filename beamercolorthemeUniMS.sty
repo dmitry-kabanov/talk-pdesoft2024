@@ -1,0 +1,164 @@
+% Copyright 2024 by Eva Pöll, Universität Münster
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/licenses/LICENSE for more details.
+
+% ###########################################################
+
+%% Content
+% - Colour Definitions by chosen theme
+% 		-> change colours in option "custom"
+% - Colour definitions according to corporate design handbook
+% - Further Colours
+% - Actual Style Setup
+%		-> change colours here for fine grained customisation
+
+% ###########################################################
+
+%Preset Designs according to university design:
+% Option name			- 1st colour	- 2nd color	- 3rd color - accent	-> Corporate Design Description
+%---------------------- - ------------- - --------- - --------- - --------- -> -----------------------------
+% cyan (default)		- cyan			- peridot	- graphite	- cassis	-> "Design C.1 // Flächen // Titel"
+% blue					- lapis			- lapis		- graphite	- peridot	-> "Design B // Linie + Fläche // Titel"
+% grey					- graphit		- peridot	- peridot	- lapis		-> "Design D.2 // Fläche + Schloss im Sommer // Titel"
+% blue-schloss			- lapis			- cyan		- white		- cassis	-> "Design F.2 // Fläche + Hintergrundbild Schloss im Sommer // Titel"
+% grey-cyan				- cyan			- graphite	- white		- peridot	-> "Design G.1 // Linien + Farbhintergrund // Titel"
+% green 				- apfelgruen	- ozean		- white		- cyan		-> "1_Design G.2 // Linien + Farbhintergrund // Titel"
+% custom				- ###			- ###		- ###		- ###		-> set up own specific colours in beamercolortheme
+
+% ###########################################################
+
+\mode<presentation>
+
+%------------------------------
+
+%Define Colours based on chosen Style
+
+	\ifx\beamer@UniMS@style\beamer@UniMS@stylecustom
+		%custom
+		%todo change colours here for a customised theme
+			\definecolor{col1}{HTML}{333F48}   % graphit %todo change
+			\definecolor{col2}{HTML}{333F48}   % graphit %todo change
+			\definecolor{col3}{HTML}{333F48}   % graphit %todo change
+			\definecolor{accent}{HTML}{AF0078} % cassis  %todo change
+		\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblue%
+		%blue
+			\definecolor{col1}{HTML}{00578A}   % lapis 
+			\definecolor{col2}{HTML}{00578A}   % lapis
+			\definecolor{col3}{HTML}{333F48}   % graphit
+			\definecolor{accent}{HTML}{B1C800} % peridot
+		\else% 
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegrey%
+		%grey	
+			\definecolor{col1}{HTML}{333F48}   % graphit
+			\definecolor{col2}{HTML}{B1C800}   % peridot
+			\definecolor{col3}{HTML}{B1C800}   % peridot
+			\definecolor{accent}{HTML}{00578A} % lapis
+		\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+		%blue-schloss	
+			\definecolor{col1}{HTML}{00578A}   % lapis
+			\definecolor{col2}{HTML}{009DD1}   % cyan
+			\definecolor{col3}{HTML}{FFFFFF}   % white
+			\definecolor{accent}{HTML}{AF0078} % cassis
+		\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+		%grey-cyan	
+			\definecolor{col2}{HTML}{009DD1}   % cyan
+			\definecolor{col1}{HTML}{333F48}   % graphit
+			\definecolor{col3}{HTML}{FFFFFF}   % white
+			\definecolor{accent}{HTML}{B1C800} % peridot
+		\else%
+		\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+		%green	
+			\definecolor{col1}{HTML}{7AB51D}   % apfelgruen
+			\definecolor{col2}{HTML}{006E89}   % ozean
+			\definecolor{col3}{HTML}{FFFFFF}   % white
+			\definecolor{accent}{HTML}{009DD1} % cyan
+		\else%
+		%cyan (default)
+			\definecolor{col1}{HTML}{009DD1}   % cyan
+			\definecolor{col2}{HTML}{B1C800}   % peridot
+			\definecolor{col3}{HTML}{333F48}   % graphit
+			\definecolor{accent}{HTML}{AF0078} % cassis
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+		\fi%
+	\fi%
+
+%------------------------------
+
+%Colours by university design handbook (for orientation)
+	\definecolor{graphit}	 {HTML}{333F48} %dark grey
+	\definecolor{cassis}	 {HTML}{AF0078} %violet
+	\definecolor{lapis}	 	 {HTML}{00578A} %blue
+	\definecolor{cyan}		 {HTML}{009DD1} %light blue
+	\definecolor{ozean}	 	 {HTML}{006E89} %grey blue
+	\definecolor{tuerkis}	 {HTML}{008E96} %turquoise
+	\definecolor{apfelgruen} {HTML}{7AB51D} %medium green
+	\definecolor{peridot}	 {HTML}{B1C800} %light green
+
+%Further Colours
+	\definecolor{textcolor}	{HTML}{262626}	%dark grey
+
+% ###########################################################
+
+%Colour Setup
+	%define	s colour styles in the presentation
+	
+	%Background of each slide is white
+	
+	%todo change colours here, for fine grained customisation
+	
+	%General Settings
+	\setbeamercolor*{normal text}		{fg=textcolor}
+	\setbeamercolor*{alerted text}		{fg=accent}
+	\setbeamercolor*{frametitle}		{fg=col1}
+	\setbeamercolor*{framesubtitle}		{fg=col2}
+	
+	%specific sections
+	\setbeamercolor*{title}				{fg=col1}
+	\setbeamercolor*{subtitle}			{fg=col2}
+	\setbeamercolor*{infos}				{fg=col3}
+	\setbeamercolor*{frame head}		{fg=textcolor!65}
+	\setbeamercolor*{footline}			{fg=col1}
+	\setbeamercolor*{section in toc}	{fg=textcolor}
+	\setbeamercolor*{subsection in toc}	{fg=textcolor}
+	\setbeamercolor*{source}			{fg=textcolor!65}
+	\setbeamercolor*{bright}			{fg=white}
+	
+	%lists
+	\setbeamercolor*{item}				{fg=col1}
+	\setbeamercolor*{itemize subitem}	{fg=col2}
+	\setbeamercolor*{itemize subsubitem}{fg=col2}
+	
+	%blocks
+	\setbeamercolor*{block title}		{fg=white, 		bg=col1}
+	\setbeamercolor*{block body}		{fg=textcolor,	bg=col1!10}
+	\setbeamercolor*{block title alerted}{fg=white,		bg=accent}
+	\setbeamercolor*{block body  alerted}{fg=textcolor,	bg=accent!10}
+	\setbeamercolor*{block title example}{fg=white,		bg=col2}
+	\setbeamercolor*{block body  example}{fg=textcolor,	bg=col2!10}
+	
+	
+	%Title has to be different colour for some styles
+	\ifx\beamer@UniMS@style\beamer@UniMS@styleblueschloss%
+		\setbeamercolor{title}{fg=white}
+	\fi
+	\ifx\beamer@UniMS@style\beamer@UniMS@stylegreen%
+		\setbeamercolor{title}{fg=white}
+	\fi
+	\ifx\beamer@UniMS@style\beamer@UniMS@stylegreycyan%
+		\setbeamercolor{title}{fg=col2}
+	\fi
+%------------------------------
+
+\mode
+<all>
